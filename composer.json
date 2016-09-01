@@ -1,0 +1,9 @@
+{
+	"name": "thunbolt/bundles",
+	"type": "library",
+	"autoload": {
+		"psr-4": {
+			"Thunbolt\\Bundles\\": "src/"
+		}
+	}
+}
