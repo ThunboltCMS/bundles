@@ -11,6 +11,11 @@ use Nette\DI\Statement;
 use Thunbolt\Bundles\BundleException;
 use Thunbolt\Bundles\BundleHelper;
 use Thunbolt\Bundles\IBundleExtension;
+use Thunbolt\Bundles\IVoidInterface;
+
+if (!interface_exists(ITranslationProvider::class)) {
+	class_alias(IVoidInterface::class, ITranslationProvider::class);
+}
 
 /**
  * @internal
@@ -27,7 +32,7 @@ final class BundlesExtension extends ExtensionsExtension implements ITranslation
 
 	public function loadConfiguration() {
 		$config = $this->getConfig();
-		$builder = $this->getContainerBuilder();
+		$hasTranslator = interface_exists(ITranslationProvider::class);
 
 		$helper = new BundleHelper($this->compiler->getExtensions(), $config);
 		foreach ($config as $name => $class) {
@@ -37,7 +42,7 @@ final class BundlesExtension extends ExtensionsExtension implements ITranslation
 				$object = $reflection->newInstanceArgs($class->arguments);
 				$class = $class->getEntity();
 			} else if (!class_exists($class)) {
-				throw new BundleException("Class '$class' not exists in bundle '$name'");
+				throw new BundleException("Bundle '$class' not exists in bundle '$name'");
 			} else {
 				$object= new $class($helper);
 			}
@@ -49,15 +54,16 @@ final class BundlesExtension extends ExtensionsExtension implements ITranslation
 			}
 			$this->compiler->addExtension(self::BUNDLE_PREFIX . $name, $object);
 			$object->startup();
-			$path = rtrim($object->getBaseFolder(), '/\\');
-			$baseClass = substr($class, 0, strpos($class, '\\'));
-			$this->transPaths[] = $path . '/Resources/translations';
+
+			$path = realpath($object->getBaseFolder());
+			$namespace = substr($class, 0, strpos($class, '\\'));
+			if ($hasTranslator && is_dir($path . '/Resources/translations')) {
+				$this->transPaths[] = $path . '/Resources/translations';
+			}
 			if (is_dir($path . '/Model')) {
-				$this->entityPaths[$baseClass . '\\Model'] = $path . '/Model';
+				$this->entityPaths[$namespace . '\\Model'] = $path . '/Model';
 			}
 		}
-
-		$this->transPaths[] = $builder->parameters['transDir'];
 	}
 
 	/**
