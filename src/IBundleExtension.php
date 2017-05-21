@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Thunbolt\Bundles;
 
 interface IBundleExtension {
 
 	/**
-	 * @return void
+	 * Initialization function
 	 */
-	public function startup();
+	public function startup(): void;
 
 	/**
-	 * @return string
+	 * Returns base folder of bundle
 	 */
-	public function getBaseFolder();
+	public function getBaseFolder(): string;
 
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Thunbolt\Bundles;
 
 use Nette\DI\Statement;
@@ -12,10 +14,6 @@ class BundleHelper {
 	/** @var array */
 	private $bundles;
 
-	/**
-	 * @param array $extensions
-	 * @param array $bundles
-	 */
 	public function __construct(array $extensions, array $bundles) {
 		foreach ($extensions as $name => $extension) {
 			$this->extensions[get_class($extension)] = $name;
@@ -25,27 +23,15 @@ class BundleHelper {
 		}
 	}
 
-	/**
-	 * @param string $class
-	 * @return bool
-	 */
-	public function hasBundle($class) {
+	public function hasBundle(string $class): bool {
 		return array_key_exists($class, $this->bundles);
 	}
 
-	/**
-	 * @param string $class
-	 * @return bool
-	 */
-	public function hasExtension($class) {
+	public function hasExtension(string $class): bool {
 		return array_key_exists($class, $this->extensions);
 	}
 
-	/**
-	 * @param string $class
-	 * @return string|null
-	 */
-	public function getExtensionName($class) {
+	public function getExtensionName(string $class): ?string {
 		if ($this->hasExtension($class)) {
 			return $this->extensions[$class];
 		}
@@ -54,20 +40,18 @@ class BundleHelper {
 	}
 
 	/**
-	 * @param string $class
 	 * @throws BundleException
 	 */
-	public function needExtension($class) {
+	public function needExtension(string $class): void {
 		if (!$this->hasExtension($class)) {
 			throw new BundleException("Bundle needs extension '$class'.");
 		}
 	}
 
 	/**
-	 * @param string $class
 	 * @throws BundleException
 	 */
-	public function needBundle($class) {
+	public function needBundle(string $class): void {
 		if (!$this->hasBundle($class)) {
 			throw new BundleException("Bundle needs other bundle '$class'.");
 		}

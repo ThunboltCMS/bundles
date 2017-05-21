@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Thunbolt\Bundles;
 
 use Nette\DI\CompilerExtension;
@@ -13,6 +15,6 @@ abstract class BundleExtension extends CompilerExtension implements IBundleExten
 		$this->helper = $helper;
 	}
 
-	public function startup() {}
+	public function startup(): void {}
 
 }

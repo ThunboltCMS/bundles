@@ -1,6 +1,9 @@
 {
 	"name": "thunbolt/bundles",
 	"type": "library",
+	"require": {
+		"php": ">=7.1"
+	},
 	"autoload": {
 		"psr-4": {
 			"Thunbolt\\Bundles\\": "src/"

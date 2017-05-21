@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Thunbolt\Bundles\DI;
 
 use Kdyby\Doctrine\DI\IEntityProvider;
@@ -30,7 +32,7 @@ final class BundlesExtension extends ExtensionsExtension implements ITranslation
 	/** @var array */
 	private $entityPaths = [];
 
-	public function loadConfiguration() {
+	public function loadConfiguration(): void {
 		$config = $this->getConfig();
 		$hasTranslator = interface_exists(ITranslationProvider::class);
 
@@ -66,24 +68,15 @@ final class BundlesExtension extends ExtensionsExtension implements ITranslation
 		}
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getEntityMappings() {
+	public function getEntityMappings(): array {
 		return $this->entityPaths;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getTranslationResources() {
+	public function getTranslationResources(): array {
 		return $this->transPaths;
 	}
 
-	/**
-	 * @param Configurator $configurator
-	 */
-	public static function register(Configurator $configurator) {
+	public static function register(Configurator $configurator): void {
 		$configurator->defaultExtensions['bundles'] = self::class;
 	}
 
