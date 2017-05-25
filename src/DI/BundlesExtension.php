@@ -7,6 +7,7 @@ namespace Thunbolt\Bundles\DI;
 use Kdyby\Doctrine\DI\IEntityProvider;
 use Kdyby\Translation\DI\ITranslationProvider;
 use Nette\Configurator;
+use Nette\DI\Compiler;
 use Nette\DI\CompilerExtension;
 use Nette\DI\Extensions\ExtensionsExtension;
 use Nette\DI\Statement;
@@ -22,7 +23,9 @@ if (!interface_exists(ITranslationProvider::class)) {
 /**
  * @internal
  */
-final class BundlesExtension extends ExtensionsExtension implements ITranslationProvider, IEntityProvider {
+final class BundlesExtension extends CompilerExtension implements ITranslationProvider, IEntityProvider {
+
+	const EXTENSION_NAME = 'bundles';
 
 	const BUNDLE_PREFIX = 'bundle.';
 
@@ -32,7 +35,7 @@ final class BundlesExtension extends ExtensionsExtension implements ITranslation
 	/** @var array */
 	private $entityPaths = [];
 
-	public function loadConfiguration(): void {
+	public function load(): void {
 		$config = $this->getConfig();
 		$hasTranslator = interface_exists(ITranslationProvider::class);
 
@@ -76,8 +79,15 @@ final class BundlesExtension extends ExtensionsExtension implements ITranslation
 		return $this->transPaths;
 	}
 
-	public static function register(Configurator $configurator): void {
-		$configurator->defaultExtensions['bundles'] = self::class;
+	public static function register(Configurator $configurator, ?string $extensionName = NULL): void {
+		$extensionName = $extensionName ?: self::EXTENSION_NAME;
+		$configurator->defaultExtensions[$extensionName] = self::class;
+		$configurator->onCompile[] = function (Configurator $configurator, Compiler $compiler) use ($extensionName) {
+			$self = new self();
+			$self->setCompiler($compiler, $extensionName);
+			$self->setConfig($compiler->getConfig()[$extensionName] ?? []);
+			$self->load();
+		};
 	}
 
 }
