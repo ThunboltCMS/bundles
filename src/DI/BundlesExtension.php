@@ -22,7 +22,7 @@ if (!interface_exists(ITranslationProvider::class)) {
 	class_alias(ITranslationReplacement::class, ITranslationProvider::class);
 }
 if (!interface_exists(IEntityProvider::class)) {
-	class_alias(IEntityProviderReplacement::class, IEntityProviderReplacement::class);
+	class_alias(IEntityProviderReplacement::class, IEntityProvider::class);
 }
 
 /**
