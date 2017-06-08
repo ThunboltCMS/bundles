@@ -2,11 +2,17 @@
 	"name": "thunbolt/bundles",
 	"type": "library",
 	"require": {
-		"php": ">=7.1"
+		"php": ">=7.1",
+		"nette/di": "^2.3 || ^3.0"
 	},
 	"autoload": {
 		"psr-4": {
 			"Thunbolt\\Bundles\\": "src/"
 		}
+	},
+	"require-dev": {
+		"nette/bootstrap": "^2.3",
+		"kdyby/doctrine": "^3.2",
+		"kdyby/translation": "^2.4"
 	}
 }
