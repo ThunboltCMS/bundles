@@ -5,19 +5,24 @@ declare(strict_types=1);
 namespace Thunbolt\Bundles\DI;
 
 use Kdyby\Doctrine\DI\IEntityProvider;
+use Kdyby\Doctrine\DI\OrmExtension;
 use Kdyby\Translation\DI\ITranslationProvider;
+use Kdyby\Translation\DI\TranslationExtension;
 use Nette\Configurator;
 use Nette\DI\Compiler;
 use Nette\DI\CompilerExtension;
-use Nette\DI\Extensions\ExtensionsExtension;
 use Nette\DI\Statement;
 use Thunbolt\Bundles\BundleException;
 use Thunbolt\Bundles\BundleHelper;
+use Thunbolt\Bundles\Conflicts\IEntityProviderReplacement;
+use Thunbolt\Bundles\Conflicts\ITranslationReplacement;
 use Thunbolt\Bundles\IBundleExtension;
-use Thunbolt\Bundles\IVoidInterface;
 
 if (!interface_exists(ITranslationProvider::class)) {
-	class_alias(IVoidInterface::class, ITranslationProvider::class);
+	class_alias(ITranslationReplacement::class, ITranslationProvider::class);
+}
+if (!interface_exists(IEntityProvider::class)) {
+	class_alias(IEntityProviderReplacement::class, IEntityProviderReplacement::class);
 }
 
 /**
@@ -37,7 +42,8 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 
 	public function load(): void {
 		$config = $this->getConfig();
-		$hasTranslator = interface_exists(ITranslationProvider::class);
+		$hasTranslator = interface_exists(TranslationExtension::class);
+		$hasEntityProvider = interface_exists(OrmExtension::class);
 
 		$helper = new BundleHelper($this->compiler->getExtensions(), $config);
 		foreach ($config as $name => $class) {
@@ -65,7 +71,7 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 			if ($hasTranslator && is_dir($path . '/Resources/translations')) {
 				$this->transPaths[] = $path . '/Resources/translations';
 			}
-			if (is_dir($path . '/Model')) {
+			if ($hasEntityProvider && is_dir($path . '/Model')) {
 				$this->entityPaths[$namespace . '\\Model'] = $path . '/Model';
 			}
 		}
