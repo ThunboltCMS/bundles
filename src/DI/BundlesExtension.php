@@ -42,8 +42,8 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 
 	public function load(): void {
 		$config = $this->getConfig();
-		$hasTranslator = interface_exists(TranslationExtension::class);
-		$hasEntityProvider = interface_exists(OrmExtension::class);
+		$hasTranslator = class_exists(TranslationExtension::class);
+		$hasEntityProvider = class_exists(OrmExtension::class);
 
 		$helper = new BundleHelper($this->compiler->getExtensions(), $config);
 		foreach ($config as $name => $class) {
