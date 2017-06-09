@@ -68,8 +68,8 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 
 			$path = realpath($object->getBaseFolder());
 			$namespace = substr($class, 0, strpos($class, '\\'));
-			if ($hasTranslator && is_dir($path . '/Resources/translations')) {
-				$this->transPaths[] = $path . '/Resources/translations';
+			if ($hasTranslator && is_dir($path . '/translations')) {
+				$this->transPaths[] = $path . '/translations';
 			}
 			if ($hasEntityProvider && is_dir($path . '/Model')) {
 				$this->entityPaths[$namespace . '\\Model'] = $path . '/Model';
