@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace Thunbolt\Bundles;
 
-use Nette\DI\CompilerExtension;
+use Nette\SmartObject;
 
-abstract class BundleExtension extends CompilerExtension implements IBundleExtension {
+abstract class BundleExtension implements IBundleExtension {
+
+	use SmartObject;
 
 	/** @var BundleHelper */
 	protected $helper;
 
-	public function __construct(BundleHelper $helper) {
+	/** @var string */
+	protected $name;
+
+	public function __construct(BundleHelper $helper, string $name) {
 		$this->helper = $helper;
+		$this->name = $name;
 	}
 
 	public function startup(): void {}

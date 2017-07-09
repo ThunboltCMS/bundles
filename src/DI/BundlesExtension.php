@@ -32,9 +32,7 @@ if (!interface_exists(IEntityProvider::class)) {
  */
 final class BundlesExtension extends CompilerExtension implements ITranslationProvider, IEntityProvider, IBundlesInfoProvider {
 
-	const EXTENSION_NAME = 'bundles';
-
-	const BUNDLE_PREFIX = 'bundle.';
+	private const EXTENSION_NAME = 'bundles';
 
 	/** @var array */
 	private $transPaths = [];
@@ -53,11 +51,10 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 		$hasTranslator = class_exists(TranslationExtension::class);
 		$hasEntityProvider = class_exists(OrmExtension::class);
 
-		$this->helper = new BundleHelper($this->compiler->getExtensions(), $config);
+		$this->helper = new BundleHelper($this->compiler, $config);
 		$namespaces = [];
 		foreach ($config as $name => $class) {
 			$object = $this->createExtension((string) $name, $class);
-			$this->compiler->addExtension(self::BUNDLE_PREFIX . $name, $object);
 			$object->startup();
 
 			$path = realpath($object->getBaseFolder());
@@ -85,21 +82,23 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 	}
 
 	private function createExtension(string $name, &$class): IBundleExtension {
+		$classArguments = [$this->helper, $name];
 		if ($class instanceof Statement) {
 			$reflection = new \ReflectionClass($class->getEntity());
-			array_unshift($class->arguments, $this->helper);
+			array_unshift($class->arguments, ...$classArguments);
 			$object = $reflection->newInstanceArgs($class->arguments);
 			$class = $class->getEntity();
+
 		} else if (!class_exists($class)) {
 			throw new BundleException("Bundle '$class' not exists in bundle '$name'");
+
 		} else {
-			$object= new $class($this->helper);
+			$object= new $class(...$classArguments);
+
 		}
+
 		if (!$object instanceof IBundleExtension) {
 			throw new BundleException("Bundle '$class' must implements " . IBundleExtension::class);
-		}
-		if (!$object instanceof CompilerExtension) {
-			throw new BundleException("Bundle '$class' must be instance of " . CompilerExtension::class);
 		}
 
 		return $object;
