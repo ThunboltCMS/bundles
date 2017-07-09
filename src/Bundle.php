@@ -6,7 +6,7 @@ namespace Thunbolt\Bundles;
 
 use Nette\SmartObject;
 
-abstract class BundleExtension implements IBundleExtension {
+abstract class Bundle implements IBundle {
 
 	use SmartObject;
 

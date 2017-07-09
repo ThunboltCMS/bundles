@@ -17,7 +17,7 @@ use Thunbolt\Bundles\BundleHelper;
 use Thunbolt\Bundles\BundlesInfo;
 use Thunbolt\Bundles\Conflicts\IEntityProviderReplacement;
 use Thunbolt\Bundles\Conflicts\ITranslationReplacement;
-use Thunbolt\Bundles\IBundleExtension;
+use Thunbolt\Bundles\IBundle;
 use Thunbolt\Bundles\IBundlesInfoProvider;
 
 if (!interface_exists(ITranslationProvider::class)) {
@@ -107,7 +107,7 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 		}
 	}
 
-	private function extractNamespace(IBundleExtension $object, string $class): string {
+	private function extractNamespace(IBundle $object, string $class): string {
 		if (method_exists($object, 'getNamespace')) {
 			$namespace = $object->getNamespace();
 		} else {
@@ -118,7 +118,7 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 		return $namespace;
 	}
 
-	private function createExtension(string $name, &$class): IBundleExtension {
+	private function createExtension(string $name, &$class): IBundle {
 		$classArguments = [$this->helper, $name];
 		if ($class instanceof Statement) {
 			$reflection = new \ReflectionClass($class->getEntity());
@@ -134,15 +134,14 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 
 		}
 
-		if (!$object instanceof IBundleExtension) {
-			throw new BundleException("Bundle '$class' must implements " . IBundleExtension::class);
+		if (!$object instanceof IBundle) {
+			throw new BundleException("Bundle '$class' must implements " . IBundle::class);
 		}
 
 		return $object;
 	}
 
-	public static function register(Configurator $configurator, ?string $extensionName = NULL): void {
-		$extensionName = $extensionName ?: self::EXTENSION_NAME;
+	public static function register(Configurator $configurator, ?string $extensionName = self::EXTENSION_NAME): void {
 		$configurator->onCompile[] = function (Configurator $configurator, Compiler $compiler) use ($extensionName) {
 			$self = new self();
 			$self->setCompiler($compiler, $extensionName);
