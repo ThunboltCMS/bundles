@@ -103,7 +103,7 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 		}
 
 		if (is_dir($doctrinePath = $path . '/Model')) {
-			$this->entityPaths[$namespace . '\\Model'] = $doctrinePath;
+			$this->entityPaths[$namespace ? $namespace . '\\Model' : 'Model'] = $doctrinePath;
 		}
 	}
 
@@ -112,7 +112,6 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 			$namespace = $object->getNamespace();
 		} else {
 			$namespace = substr($class, 0, strrpos($class, '\\'));
-			$namespace = substr($namespace, 0, strrpos($namespace, '\\'));
 		}
 
 		return $namespace;
