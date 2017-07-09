@@ -46,28 +46,65 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 	/** @var BundlesInfo */
 	private $infoObject;
 
-	public function load(): void {
-		$config = $this->getConfig();
-		$hasTranslator = class_exists(TranslationExtension::class);
-		$hasEntityProvider = class_exists(OrmExtension::class);
+	/** @var bool */
+	private $hasTranslator;
 
-		$this->helper = new BundleHelper($this->compiler, $config);
+	/** @var bool */
+	private $hasDoctrine;
+
+	public function load(): void {
+		$bundles = $this->getConfig();
 		$namespaces = [];
-		foreach ($config as $name => $class) {
+
+		$this->hasTranslator = class_exists(TranslationExtension::class);
+		$this->hasDoctrine = class_exists(OrmExtension::class);
+		$this->helper = new BundleHelper($this->compiler, $bundles);
+
+		foreach ($bundles as $name => $class) {
 			$object = $this->createExtension((string) $name, $class);
 			$object->startup();
 
 			$path = realpath($object->getBaseFolder());
 			$namespaces[$name] = $namespace = $this->extractNamespace($object, $class);
-			if ($hasTranslator && is_dir($path . '/translations')) {
-				$this->transPaths[] = $path . '/translations';
-			}
-			if ($hasEntityProvider && is_dir($path . '/Model')) {
-				$this->entityPaths[$namespace . '\\Model'] = $path . '/Model';
-			}
+
+			// registrations
+			$this->registerTranslatorPath($path);
+			$this->registerDoctrinePath($path, $namespace);
 		}
 
 		$this->infoObject = new BundlesInfo($namespaces);
+	}
+
+	public function getBundlesInfo(): BundlesInfo {
+		return $this->infoObject;
+	}
+
+	public function getEntityMappings(): array {
+		return $this->entityPaths;
+	}
+
+	public function getTranslationResources(): array {
+		return $this->transPaths;
+	}
+
+	private function registerTranslatorPath(string $path): void {
+		if (!$this->hasTranslator) {
+			return;
+		}
+
+		if (is_dir($modelPath = $path . '/translations')) {
+			$this->transPaths[] = $modelPath;
+		}
+	}
+
+	private function registerDoctrinePath(string $path, string $namespace): void {
+		if (!$this->hasDoctrine) {
+			return;
+		}
+
+		if (is_dir($doctrinePath = $path . '/Model')) {
+			$this->entityPaths[$namespace . '\\Model'] = $doctrinePath;
+		}
 	}
 
 	private function extractNamespace(IBundleExtension $object, string $class): string {
@@ -102,18 +139,6 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 		}
 
 		return $object;
-	}
-
-	public function getBundlesInfo(): BundlesInfo {
-		return $this->infoObject;
-	}
-
-	public function getEntityMappings(): array {
-		return $this->entityPaths;
-	}
-
-	public function getTranslationResources(): array {
-		return $this->transPaths;
 	}
 
 	public static function register(Configurator $configurator, ?string $extensionName = NULL): void {

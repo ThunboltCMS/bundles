@@ -21,6 +21,8 @@ abstract class BundleExtension implements IBundleExtension {
 		$this->name = $name;
 	}
 
+	public function before(): void {}
+
 	public function startup(): void {}
 
 }
