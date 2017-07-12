@@ -33,6 +33,7 @@ if (!interface_exists(IEntityProvider::class)) {
 final class BundlesExtension extends CompilerExtension implements ITranslationProvider, IEntityProvider, IBundlesInfoProvider {
 
 	private const EXTENSION_NAME = 'bundles';
+	private const ENTITY_PATH = 'Entities';
 
 	/** @var array */
 	private $transPaths = [];
@@ -102,8 +103,8 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 			return;
 		}
 
-		if (is_dir($doctrinePath = $path . '/Model')) {
-			$this->entityPaths[$namespace ? $namespace . '\\Model' : 'Model'] = $doctrinePath;
+		if (is_dir($doctrinePath = $path . '/' . self::ENTITY_PATH)) {
+			$this->entityPaths[$namespace ? $namespace . '\\' . self::ENTITY_PATH : self::ENTITY_PATH] = $doctrinePath;
 		}
 	}
 
