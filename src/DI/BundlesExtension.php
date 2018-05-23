@@ -32,6 +32,7 @@ if (!interface_exists(IEntityProvider::class)) {
  */
 final class BundlesExtension extends CompilerExtension implements ITranslationProvider, IEntityProvider, IBundlesInfoProvider {
 
+	private const ORM_ANNOTATIONS_NAME = 'orm.annotations';
 	private const EXTENSION_NAME = 'bundles';
 	private const ENTITY_PATH = 'Entities';
 
@@ -57,8 +58,9 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 		$bundles = $this->getConfig();
 		$namespaces = [];
 
+		$hasNettrine = class_exists(\Nettrine\ORM\DI\OrmExtension::class);
 		$this->hasTranslator = class_exists(TranslationExtension::class);
-		$this->hasDoctrine = class_exists(OrmExtension::class);
+		$this->hasDoctrine = class_exists(OrmExtension::class) || $hasNettrine;
 		$this->helper = new BundleHelper($this->compiler, $bundles);
 
 		foreach ($bundles as $name => $class) {
@@ -71,6 +73,14 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 			// registrations
 			$this->registerTranslatorPath($path);
 			$this->registerDoctrinePath($path, $namespace);
+		}
+
+		if ($this->hasDoctrine && $hasNettrine) {
+			$this->compiler->addConfig([
+				self::ORM_ANNOTATIONS_NAME => [
+					'paths' => $this->entityPaths,
+				]
+			]);
 		}
 
 		$this->infoObject = new BundlesInfo($namespaces);
@@ -93,8 +103,8 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 			return;
 		}
 
-		if (is_dir($modelPath = $path . '/translations')) {
-			$this->transPaths[] = $modelPath;
+		if (is_dir($path)) {
+			$this->transPaths[] = $path . '/translations';
 		}
 	}
 
@@ -103,8 +113,8 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 			return;
 		}
 
-		if (is_dir($doctrinePath = $path . '/' . self::ENTITY_PATH)) {
-			$this->entityPaths[$namespace ? $namespace . '\\' . self::ENTITY_PATH : self::ENTITY_PATH] = $doctrinePath;
+		if (is_dir($path)) {
+			$this->entityPaths[$namespace ? $namespace . '\\' . self::ENTITY_PATH : self::ENTITY_PATH] = $path . '/' . self::ENTITY_PATH;
 		}
 	}
 
