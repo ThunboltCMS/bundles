@@ -113,8 +113,8 @@ final class BundlesExtension extends CompilerExtension implements ITranslationPr
 			return;
 		}
 
-		if (is_dir($path)) {
-			$this->entityPaths[$namespace ? $namespace . '\\' . self::ENTITY_PATH : self::ENTITY_PATH] = $path . '/' . self::ENTITY_PATH;
+		if (is_dir($path = $path . '/' . self::ENTITY_PATH)) {
+			$this->entityPaths[$namespace ? $namespace . '\\' . self::ENTITY_PATH : self::ENTITY_PATH] = $path;
 		}
 	}
 
